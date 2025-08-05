@@ -1,0 +1,46 @@
+/* src/pages/Home.css */
+
+.home-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.product-description {
+  margin-top: 0.5rem;
+  color: #666;
+}
+
+.product-price {
+  margin-top: 0.5rem;
+  color: green;
+  font-weight: bold;
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.6rem;
+  margin: 1rem 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
