@@ -1,38 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase/client';
+import { Link } from 'react-router-dom';
 import './Home.css';
+
+const fallbackImage = 'https://via.placeholder.com/150?text=No+Image';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
-  async function fetchProducts() {
-    try {
-      const { data, error } = await supabase.from('products').select('*');
-      if (error) {
-        console.error('Supabase error:', error); // Better error detail
-        setProducts([]);
-        setError('Failed to fetch products');
-      } else {
-        setProducts(data);
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase.from('products').select('*');
+        if (error) {
+          if (!hasFetched) {
+            console.error('Error fetching products:', error.message);
+            setError('Failed to fetch products.');
+            setHasFetched(true);
+          }
+        } else {
+          setProducts(data || []);
+          setError(null);
+        }
+      } catch (err) {
+        if (!hasFetched) {
+          console.error('Unexpected error:', err.message);
+          setError('An unexpected error occurred.');
+          setHasFetched(true);
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Network error:', err); // Will show fetch errors
-      setError('Network error occurred');
-    } finally {
-      setLoading(false);
-    }
-  }
+    };
 
-  fetchProducts();
-}, []);
+    fetchProducts();
+  }, [hasFetched]);
 
   const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (product.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (product.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -48,19 +58,32 @@ const Home = () => {
       />
 
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {filteredProducts.length > 0 ? (
-        filteredProducts.map((p) => (
-          <div key={p.id} className="product-card">
-            <h3 className="product-title">{p.name}</h3>
-            <p className="product-description">{p.description}</p>
-            <p className="product-price">₦{p.price}</p>
-          </div>
-        ))
-      ) : (
-        !loading && <p>No matching products found.</p>
+      {!loading && filteredProducts.length === 0 && (
+        <p>No matching products found.</p>
       )}
+
+      <div className="product-grid">
+        {filteredProducts.map((product) => (
+          <Link to={`/product/${product.id}`} key={product.id} className="product-card">
+            <img
+              src={product.image_url || fallbackImage}
+              alt={product.title}
+              className="product-image"
+              onError={(e) => {
+                if (e.target.src !== fallbackImage) {
+                  e.target.onerror = null; // prevent infinite loop
+                  e.target.src = fallbackImage;
+                }
+              }}
+            />
+            <h3 className="product-title">{product.title}</h3>
+            <p className="product-description">{product.description}</p>
+            <p className="product-price">₦{product.price}</p>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 };

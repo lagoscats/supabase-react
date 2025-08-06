@@ -14,14 +14,30 @@ const Dashboard = () => {
   };
 
   if (!session)
-    return <p className="login-warning">You must log in to access this page.</p>;
+    return (
+      <div className="dashboard-container">
+        <p className="login-warning">⚠️ You must be logged in to view this page.</p>
+      </div>
+    );
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-heading">Welcome, {session.user.email}</h2>
-      <button className="logout-button" onClick={handleLogout}>
-        Logout
-      </button>
+      <div className="dashboard-card">
+        <h2>Welcome, <span className="email">{session.user.email}</span></h2>
+        <p>You are logged in with Supabase Auth.</p>
+
+        <div className="dashboard-actions">
+          <button className="dashboard-btn logout" onClick={handleLogout}>
+            Logout
+          </button>
+          <button
+            className="dashboard-btn manage"
+            onClick={() => navigate('/dashboard/manage-products')}
+>            Manage Products
+          </button>
+
+        </div>
+      </div>
     </div>
   );
 };

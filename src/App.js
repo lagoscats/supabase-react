@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import Contact from './pages/Contact';
 import Navbar from './components/Navbar'; // ✅ Import Navbar
 import Register from './pages/Register';
+import ProductPage from './pages/ProductPage';
+import ManageProducts from './pages/ManageProducts'; // Adjust path if needed
 
 
 const PrivateRoute = ({ children }) => {
@@ -23,6 +25,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/product/:id" element={<ProductPage />} />
+        <Route path="/dashboard/manage-products" element={<ManageProducts />} />
         <Route path="/contact" element={<Contact />} />
         <Route
           path="/dashboard"
