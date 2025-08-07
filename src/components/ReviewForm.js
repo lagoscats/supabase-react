@@ -1,85 +1,85 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '../supabase/client';
-import './ReviewForm.css'; // ✅ add this
+import './ReviewForm.css';
 
-
-export default function ReviewForm({ productId, user }) {
-  const [rating, setRating] = useState(5);
+export default function ReviewForm({ product_id, onReviewSubmitted }) {
+  const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+    setError('');
 
-    if (!rating || !comment.trim()) {
-      setMessage('Rating and comment are required.');
+    // Validate inputs
+    if (!rating || isNaN(rating) || rating < 1 || rating > 5) {
+      setError('Rating must be a number between 1 and 5');
+      setSubmitting(false);
       return;
     }
 
-    const review = {
-      product_id: productId,
-      user_id: user.id,
-      rating,
-      comment: comment.trim(),
-    };
+    try {
+      // Get logged-in user
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-    console.log('Submitting review:', review);
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
 
-    setLoading(true);
-    setMessage('');
+      const { error: insertError } = await supabase.from('reviews').insert([
+        {
+          product_id,
+          user_id: user.id,
+          rating: parseInt(rating),
+          comment,
+        },
+      ]);
 
-    const { error } = await supabase.from('reviews').insert([review]);
+      if (insertError) throw insertError;
 
-    if (error) {
-      console.error('Insert error:', error);
-      setMessage('Error submitting review: ' + error.message);
-    } else {
-      setMessage('Review submitted!');
-      setRating(5);
+      alert('Review submitted!');
+      setRating('');
       setComment('');
+      if (onReviewSubmitted) onReviewSubmitted();
+    } catch (err) {
+      console.error('Review submission error:', err.message);
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border rounded">
-      <h3 className="text-lg font-semibold mb-2">Leave a Review</h3>
-
-      {message && <p className="text-sm text-red-600 mb-2">{message}</p>}
-      {loading && <p className="text-sm text-blue-500 mb-2">Submitting...</p>}
-
-      <label className="block mb-2">
-        Rating:
-        <select
+    <form onSubmit={handleSubmit} className="review-form">
+      <h3>Leave a Review</h3>
+      <label>
+        Rating (1-5):
+        <input
+          type="number"
+          min="1"
+          max="5"
           value={rating}
-          onChange={(e) => setRating(Number(e.target.value))}
-          className="ml-2"
-        >
-          {[1, 2, 3, 4, 5].map((r) => (
-            <option key={r} value={r}>
-              {r} Star{r > 1 && 's'}
-            </option>
-          ))}
-        </select>
+          onChange={(e) => setRating(e.target.value)}
+          required
+        />
       </label>
-
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        placeholder="Your comment..."
-        className="w-full p-2 border rounded mb-2"
-        rows={3}
-      />
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Submit Review
+      <label>
+        Comment:
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Write something about this product..."
+        />
+      </label>
+      <button type="submit" disabled={submitting}>
+        {submitting ? 'Submitting...' : 'Submit Review'}
       </button>
+      {error && <p className="error-text">{error}</p>}
     </form>
   );
 }

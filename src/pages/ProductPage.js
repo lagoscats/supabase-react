@@ -35,25 +35,28 @@ export default function ProductPage() {
   if (!product) return <p className="loading-text">Loading product...</p>;
 
   return (
-    <div className="product-page">
-      <div className="product-image-container">
+  <div className="product-page">
+    <div className="product-container">
+      <div className="product-image-wrapper">
         <FallbackImage
           src={product.image_url}
           alt={product.title}
           className="product-image"
-          fallback= 'https://picsum.photos/100'
+          fallback="https://picsum.photos/300"
         />
       </div>
 
-      <div className="product-details">
-        <Link to="/" className="back-button">← Back to Products</Link>
-        <h1>{product.title}</h1>
-        <p className="description">{product.description}</p>
-        <p className="price">₦{product.price}</p>
+      <div className="product-info">
+        <Link to="/products" className="back-button">← Back to Products</Link>
+        <h1 className="product-title">{product.title}</h1>
+        <p className="product-description">{product.description}</p>
+        <p className="product-price">₦{product.price}</p>
 
         {user && <ReviewForm productId={product.id} user={user} />}
         <ReviewList productId={product.id} />
       </div>
     </div>
+  </div>
   );
 }
+

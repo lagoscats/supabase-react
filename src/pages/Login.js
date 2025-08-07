@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabase/client';
 import { useNavigate, Link } from 'react-router-dom';
-import './Register.css'; // reuse styling
+import './Register.css'; // Reused styling
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +15,10 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setLoading(false);
     if (error) {
@@ -28,20 +31,29 @@ const Login = () => {
   return (
     <div className="register-container">
       <div className="register-box">
-        <h2 className="register-title">Login</h2>
-        <form className="register-form" onSubmit={handleLogin}>
+        <h2 className="register-title">Login to SupaLink</h2>
+        <form className="register-form" onSubmit={handleLogin} autoComplete="on">
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
+            name="email"
             type="email"
-            placeholder="Email"
+            placeholder="Enter your email"
             className="register-input"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
+            name="password"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             className="register-input"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -54,7 +66,7 @@ const Login = () => {
           </button>
 
           <p className="register-hint">
-            Don't have an account yet?{' '}
+            Don’t have an account?{' '}
             <Link to="/register" className="register-link">
               Register here
             </Link>

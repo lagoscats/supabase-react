@@ -1,0 +1,135 @@
+/* Container */
+.products-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.products-header {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #004aad;
+}
+
+/* Search Bar */
+.search-bar {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  margin: 1rem auto 2rem auto;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* Product Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+/* Product Card */
+.product-card {
+  background-color: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 1rem;
+  text-decoration: none;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Product Image */
+.product-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Product Title */
+.product-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
+/* Price */
+.product-price {
+  font-size: 1rem;
+  color: #2a9d8f;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Product Actions */
+.product-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.buy-now-button,
+.add-to-cart-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.buy-now-button {
+  background-color: #004aad;
+  color: white;
+}
+
+.buy-now-button:hover {
+  background-color: #00337a;
+}
+
+.add-to-cart-button {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.add-to-cart-button:hover {
+  background-color: #ccc;
+}
+
+/* Loading & Empty States */
+.loading-text,
+.empty-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #777;
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .search-bar {
+    width: 90%;
+  }
+
+  .product-grid {
+    gap: 1.5rem;
+  }
+}
