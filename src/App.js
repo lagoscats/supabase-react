@@ -1,3 +1,4 @@
+// App.js
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useSessionContext } from '@supabase/auth-helpers-react';
 
@@ -11,6 +12,9 @@ import ProductPage from './pages/ProductPage';
 import ManageProducts from './pages/ManageProducts';
 import ProductsPage from './pages/ProductsPage';
 import CartPage from './pages/CartPage';
+import VendorProfile from './pages/VendorProfile';
+import BecomeVendor from './pages/BecomeVendor';
+import VendorDashboard from './pages/VendorDashboard';
 import { CartProvider } from './context/CartContext';
 
 const PrivateRoute = ({ children }) => {
@@ -32,11 +36,23 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/dashboard/manage-products" element={<ManageProducts />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/vendor/:vendorId" element={<VendorProfile />} />
+          <Route path="/become-vendor" element={<BecomeVendor />} />
+
+          {/* ✅ Keep this route INSIDE the Routes block */}
           <Route
             path="/dashboard"
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/vendor"
+            element={
+              <PrivateRoute>
+                <VendorDashboard />
               </PrivateRoute>
             }
           />

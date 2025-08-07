@@ -1,79 +1,141 @@
+/* src/styles/ProductPage.css */
+
+/* General container */
 .product-page {
-  padding: 2rem;
-  background: #f9f9f9;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.product-container {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 1200px;
-  margin: auto;
-}
-
-.product-image-wrapper {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: white;
-  border-radius: 10px;
-  padding: 1rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.product-image {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 10px;
-}
-
-.product-info {
-  flex: 1;
-  background: white;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.back-button {
+/* Back link */
+.back-link {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #0077cc;
   text-decoration: none;
+  color: #555;
   font-size: 0.9rem;
 }
 
-.back-button:hover {
-  text-decoration: underline;
+.back-link:hover {
+  color: #000;
+}
+
+/* Product header */
+.product-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-header img {
+  max-width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
 .product-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.product-description {
-  color: #555;
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #222;
 }
 
 .product-price {
-  font-size: 1.5rem;
-  color: #2b6cb0;
-  font-weight: 600;
-  margin-bottom: 2rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #28a745;
 }
 
-@media (min-width: 768px) {
-  .product-container {
-    flex-direction: row;
+/* Review Section */
+.review-section {
+  margin-top: 2rem;
+}
+
+.review-section h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.review-form {
+  background: #f8f9fa;
+  padding: 1.2rem;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.review-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.review-form input,
+.review-form textarea,
+.review-form select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.review-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.review-form button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.review-form button:hover {
+  background: #0056b3;
+}
+
+/* Review List */
+.review-list {
+  margin-top: 1rem;
+}
+
+.review-card {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+  border: 1px solid #eee;
+}
+
+.review-card strong {
+  font-size: 1rem;
+  color: #333;
+}
+
+.review-card p {
+  font-size: 0.95rem;
+  color: #555;
+  margin-top: 0.3rem;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .product-page {
+    padding: 1rem;
   }
 
-  .product-image-wrapper, .product-info {
-    flex: 1;
+  .product-title {
+    font-size: 1.5rem;
   }
 }

@@ -20,6 +20,11 @@ export default function Navbar() {
         <Link to="/contact" className="nav-link" onClick={toggleMenu}>Contact</Link>
         <Link to="/register" className="nav-link" onClick={toggleMenu}>Register</Link>
         <Link to="/login" className="nav-link" onClick={toggleMenu}>Login</Link>
+        <Link to="/become-vendor" className="nav-link" onClick={toggleMenu}>
+        <Link to="/dashboard/vendor" className="nav-link">Vendor Dashboard</Link>
+  🛍️ Become a Vendor
+</Link>
+
         <Link to="/cart" className="nav-link cart-link" onClick={toggleMenu}>
           🛒 Cart
           {cartItems.length > 0 && (

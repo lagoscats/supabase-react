@@ -1,0 +1,84 @@
+.vendor-profile {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.vendor-profile h2 {
+  font-size: 2rem;
+  color: #004aad;
+  margin-bottom: 0.3rem;
+}
+
+.vendor-profile p {
+  margin: 0.2rem 0;
+  color: #333;
+}
+
+.vendor-profile .avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  border: 3px solid #004aad;
+}
+
+.listing-grid {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.listing-card {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.listing-card:hover {
+  transform: scale(1.03);
+}
+
+.listing-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.listing-card h4 {
+  margin: 0.4rem 0;
+  font-size: 1.1rem;
+  color: #222;
+}
+
+.listing-card p {
+  margin: 0.2rem;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.listing-card a {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: #004aad;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.listing-card a:hover {
+  background: #003280;
+}
