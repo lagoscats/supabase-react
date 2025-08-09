@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase/client';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router-dom';
 import './ProductsPage.css';
 
 const fallbackImage = 'https://via.placeholder.com/300x200.png?text=No+Image';
@@ -12,19 +11,23 @@ export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [user, setUser] = useState(null);
   const { addToCart, clearCart } = useCart();
 
   useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
     const fetchProducts = async () => {
       const { data, error } = await supabase.from('products').select('*');
-      if (error) {
-        console.error('Failed to fetch products:', error.message);
-      } else {
-        setProducts(data || []);
-      }
+      if (error) console.error('Failed to fetch products:', error.message);
+      else setProducts(data || []);
       setLoading(false);
     };
 
+    fetchUser();
     fetchProducts();
   }, []);
 
@@ -34,13 +37,31 @@ export default function ProductsPage() {
   );
 
   const handleBuyNow = (product) => {
-  clearCart();        // 👈 clear previous cart
-  addToCart(product); // 👈 add only this one
-  navigate('/cart');  // 👈 go to checkout page
-};
+    clearCart();
+    addToCart(product);
+    navigate('/cart');
+  };
+
   const handleAddToCart = (product) => {
     addToCart(product);
     alert(`"${product.name}" added to cart!`);
+  };
+
+  const handleDelete = async (productId) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId);
+
+    if (error) {
+      console.error('Failed to delete product:', error.message);
+      alert('Error deleting product.');
+    } else {
+      setProducts(products.filter((p) => p.id !== productId));
+      alert('Product deleted successfully.');
+    }
   };
 
   return (
@@ -83,18 +104,19 @@ export default function ProductsPage() {
               </div>
 
               <div className="product-actions">
-                <button
-                  className="buy-now-button"
-                  onClick={() => handleBuyNow(product)}
-                >
+                <button className="buy-now-button" onClick={() => handleBuyNow(product)}>
                   Buy Now
                 </button>
-                <button
-                  className="add-to-cart-button"
-                  onClick={() => handleAddToCart(product)}
-                >
+                <button className="add-to-cart-button" onClick={() => handleAddToCart(product)}>
                   Add to Cart
                 </button>
+
+                {/* Show delete button only if user owns this product */}
+                {user?.id === product.user_id && (
+                  <button className="delete-button" onClick={() => handleDelete(product.id)}>
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))}

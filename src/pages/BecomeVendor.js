@@ -1,107 +1,97 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/BecomeVendor.js
+import React, { useState } from 'react';
 import { supabase } from '../supabase/client';
-
-import './BecomeVendor.css'; // Import the CSS
+import { useNavigate } from 'react-router-dom';
+import './BecomeVendor.css';
 
 export default function BecomeVendor() {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
-  const [bio, setBio] = useState('');
-  const [file, setFile] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setSuccess(false);
+    setError('');
+    setLoading(true);
 
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('You must be logged in');
-
-      let avatarPath = '';
-      if (file) {
-        const { data, error } = await supabase.storage
-          .from('profile-photos')
-          .upload(`vendors/${user.id}-${Date.now()}`, file);
-
-        if (error) throw error;
-        avatarPath = data.path;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError('You must be signed in to become a vendor.');
+        setLoading(false);
+        return;
       }
 
-      const { error: insertError } = await supabase.from('vendors').insert({
-        user_id: user.id,
-        name,
-        location,
-        bio,
-        avatar_url: avatarPath,
-      });
+      // ✅ Check if user already has a vendor profile
+      const { data: existingVendor, error: checkError } = await supabase
+        .from('vendor_listings')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existingVendor) {
+        // Redirect if profile already exists
+        navigate(`/vendor-dashboard/${existingVendor.id}`);
+        return;
+      }
+
+      // ✅ Insert new vendor profile
+      const { data, error: insertError } = await supabase
+        .from('vendor_listings')
+        .insert([
+          {
+            user_id: user.id,
+            name,
+            location,
+          },
+        ])
+        .select()
+        .single();
 
       if (insertError) throw insertError;
 
-      setSuccess(true);
-      setName('');
-      setLocation('');
-      setBio('');
-      setFile(null);
+      // ✅ Redirect to vendor dashboard after creation
+      navigate(`/dashboard/vendor/${data.id}`);
+
+
     } catch (err) {
-      alert(err.message);
+      console.error(err);
+      setError('Error creating vendor profile.');
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
-  const [user, setUser] = useState(null);
-
-useEffect(() => {
-  const getUser = async () => {
-    const { data } = await supabase.auth.getUser();
-    setUser(data?.user || null);
-  };
-  getUser();
-}, []);
-
-if (!user) {
   return (
-    <div className="vendor-container">
-      <h2>🧵 Become a Vendor</h2>
-      <p>You must <a href="/login">log in</a> to access this page.</p>
-    </div>
-  );
-}
-
-  return (
-    <div className="vendor-container">
-      <h2>🧵 Become a Vendor</h2>
-      {success && <p className="success-text">Vendor profile created successfully!</p>}
+    <div className="become-vendor-container">
+      <h2>Become a Vendor</h2>
       <form onSubmit={handleSubmit} className="vendor-form">
+        {error && <p className="error">{error}</p>}
+
+        <label>Vendor Name:</label>
         <input
           type="text"
-          placeholder="Tailor Name or Business"
+          placeholder="Enter your shop name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
+
+        <label>Location:</label>
         <input
           type="text"
-          placeholder="Location"
+          placeholder="Enter your location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           required
         />
-        <textarea
-          placeholder="Bio (what you specialize in...)"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Submitting...' : 'Submit'}
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Submitting...' : 'Submit'}
         </button>
       </form>
     </div>

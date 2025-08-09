@@ -1,57 +1,60 @@
-// pages/VendorProfile.js
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { supabase } from '../supabase/client';
-import './VendorProfile.css';
+// src/pages/VendorProfile.js
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabase/client";
 
-export default function VendorProfile() {
-  const { vendorId } = useParams();
+const VendorProfile = () => {
+  const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
-  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchVendor = async () => {
-      const { data } = await supabase
-        .from('vendors')
-        .select('*')
-        .eq('id', vendorId)
-        .single();
-      if (data) setVendor(data);
-    };
+    async function fetchVendor() {
+      setLoading(true);
+      setError('');
 
-    const fetchListings = async () => {
-      const { data } = await supabase
-        .from('vendor_listings')
-        .select('*')
-        .eq('vendor_id', vendorId);
-      if (data) setListings(data);
-    };
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        navigate("/login");
+        return;
+      }
+
+      const { data, error: vendorError } = await supabase
+        .from("vendors")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (vendorError) {
+        if (vendorError.code === "PGRST116") {
+          setError("No vendor profile found. Redirecting...");
+          setTimeout(() => navigate("/become-vendor"), 2000);
+        } else {
+          setError("Error fetching vendor profile: " + vendorError.message);
+        }
+      } else {
+        setVendor(data);
+      }
+      setLoading(false);
+    }
 
     fetchVendor();
-    fetchListings();
-  }, [vendorId]);
+  }, [navigate]);
 
-  if (!vendor) return <p>Loading vendor...</p>;
+  if (loading) return <p>Loading vendor profile...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
+  if (!vendor) return null;
 
   return (
-    <div className="vendor-profile">
-      <h2>{vendor.name}</h2>
-      <p>{vendor.location}</p>
-      <p>{vendor.bio}</p>
-      <a href={listings.affiliate_link} target="_blank" rel="noopener noreferrer">Buy Now</a>
-
-      <h3>Listings</h3>
-      <div className="listing-grid">
-        {listings.map(listing => (
-          <div key={listing.id} className="listing-card">
-            <img src={listing.image_url} alt={listing.title} />
-            <h4>{listing.title}</h4>
-            <p>From ₦{listing.price}</p>
-            <p>Delivery: {listing.delivery_days} days</p>
-            <a href={listing.affiliate_link} target="_blank" rel="noopener noreferrer">Buy Now</a>
-        </div>
-        ))}
-      </div>
+    <div className="vendor-profile-container" style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
+      <h1>{vendor.name}</h1>
+      <p><strong>Location:</strong> {vendor.location}</p>
+      <p><strong>Phone:</strong> {vendor.phone || 'N/A'}</p>
+      <p><strong>Description:</strong> {vendor.description || 'No description provided.'}</p>
     </div>
   );
-}
+};
+
+export default VendorProfile;

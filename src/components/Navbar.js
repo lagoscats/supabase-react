@@ -1,42 +1,40 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useSessionContext } from '@supabase/auth-helpers-react';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { cartItems } = useCart();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const { session } = useSessionContext();
 
   return (
     <nav className="navbar">
-      <Link to="/" className="logo">SupaLink</Link>
-
-      <div className={`nav-links ${menuOpen ? 'active' : ''}`}>
-        <Link to="/" className="nav-link" onClick={toggleMenu}>Home</Link>
-        <Link to="/products" className="nav-link" onClick={toggleMenu}>Products</Link>
-        <Link to="/dashboard" className="nav-link" onClick={toggleMenu}>Dashboard</Link>
-        <Link to="/contact" className="nav-link" onClick={toggleMenu}>Contact</Link>
-        <Link to="/register" className="nav-link" onClick={toggleMenu}>Register</Link>
-        <Link to="/login" className="nav-link" onClick={toggleMenu}>Login</Link>
-        <Link to="/become-vendor" className="nav-link" onClick={toggleMenu}>
-        <Link to="/dashboard/vendor" className="nav-link">Vendor Dashboard</Link>
-  🛍️ Become a Vendor
-</Link>
-
-        <Link to="/cart" className="nav-link cart-link" onClick={toggleMenu}>
-          🛒 Cart
-          {cartItems.length > 0 && (
-            <span className="cart-badge">{cartItems.length}</span>
-          )}
-        </Link>
+      <div className="navbar-logo">
+        <Link to="/">SupaLink</Link>
       </div>
 
-      <div className={`hamburger ${menuOpen ? 'open' : ''}`} onClick={toggleMenu}>
+      <input type="checkbox" id="navbar-toggle" className="navbar-toggle" />
+      <label htmlFor="navbar-toggle" className="navbar-icon">
         <span></span>
         <span></span>
         <span></span>
+      </label>
+
+      <div className="navbar-menu">
+        <Link to="/">Home</Link>
+        <Link to="/products">Products</Link>
+        <Link to="/vendor-listings">Vendors</Link>
+        {session && <Link to="/dashboard/vendor">Vendor Dashboard</Link>}
+        <Link to="/become-vendor">🛍️ Become a Vendor</Link>
+        <Link to="/cart">🛒 Cart</Link>
+        <Link to="/contact">Contact</Link>
+        {session ? (
+          <Link to="/dashboard">Dashboard</Link>
+        ) : (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
       </div>
     </nav>
   );
