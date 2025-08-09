@@ -129,3 +129,22 @@
     display: flex;
   }
 }
+
+.cart-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cart-badge {
+  background: #ff7f50;
+  color: white;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  padding: 0 7px;
+  min-width: 20px;
+  text-align: center;
+  line-height: 1.5;
+}

@@ -23,6 +23,8 @@ import AddListing from './pages/AddListing';
 import EditListing from './pages/EditListing';
 import Footer from './components/Footer';
 import { CartProvider } from './context/CartContext';
+import CheckoutPage from './pages/CheckoutPage';
+
 import './App.css';
 
 // PrivateRoute to protect authenticated routes
@@ -42,6 +44,7 @@ function App() {
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<ProductsPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/vendor-listings" element={<VendorListings />} />
               <Route path="/become-vendor" element={<BecomeVendor />} />

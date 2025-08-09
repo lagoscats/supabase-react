@@ -1,10 +1,12 @@
-import React from 'react';
+import React from 'react'; 
 import { Link } from 'react-router-dom';
 import { useSessionContext } from '@supabase/auth-helpers-react';
+import { useCart } from '../context/CartContext';
 import './Navbar.css';
 
 export default function Navbar() {
   const { session } = useSessionContext();
+  const { cart } = useCart();
 
   return (
     <nav className="navbar">
@@ -25,7 +27,12 @@ export default function Navbar() {
         <Link to="/vendor-listings">Vendors</Link>
         {session && <Link to="/dashboard/vendor">Vendor Dashboard</Link>}
         <Link to="/become-vendor">🛍️ Become a Vendor</Link>
-        <Link to="/cart">🛒 Cart</Link>
+
+        <Link to="/cart" className="cart-link">
+          🛒 Cart
+          {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
+        </Link>
+
         <Link to="/contact">Contact</Link>
         {session ? (
           <Link to="/dashboard">Dashboard</Link>
