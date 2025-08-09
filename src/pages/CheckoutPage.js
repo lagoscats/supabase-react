@@ -1,7 +1,7 @@
-// src/pages/CheckoutPage.js
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { supabase } from '../supabase/client'; // your Supabase client instance
+import { supabase } from '../supabase/client';
+import './CheckoutPage.css';
 
 export default function CheckoutPage() {
   const location = useLocation();
@@ -13,7 +13,6 @@ export default function CheckoutPage() {
 
   const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
 
-  // Place order in Supabase (example, adjust to your schema)
   const placeOrder = async () => {
     setLoading(true);
     setError(null);
@@ -44,7 +43,7 @@ export default function CheckoutPage() {
       const orderItems = items.map(item => ({
         order_id: orderId,
         product_id: item.id,
-        quantity: 1, // for now, default 1
+        quantity: 1,
         price: item.price,
       }));
 
@@ -52,7 +51,7 @@ export default function CheckoutPage() {
       if (itemsError) throw itemsError;
 
       alert('Order placed successfully!');
-      navigate('/'); // redirect to home or orders page
+      navigate('/'); // redirect home or to orders page
     } catch (err) {
       setError(err.message);
     } finally {
@@ -61,24 +60,33 @@ export default function CheckoutPage() {
   };
 
   if (items.length === 0) {
-    return <p>No items to checkout.</p>;
+    return <p className="empty-cart-msg">No items to checkout.</p>;
   }
 
   return (
     <div className="checkout-page">
       <h2>Checkout</h2>
-      <ul>
+      <ul className="checkout-items">
         {items.map(item => (
-          <li key={item.id}>
-            {item.name} - ₦{item.price.toFixed(2)}
+          <li key={item.id} className="checkout-item">
+            <span className="item-name">{item.name}</span>
+            <span className="item-price">₦{item.price.toFixed(2)}</span>
           </li>
         ))}
       </ul>
-      <p><strong>Total: ₦{totalPrice.toFixed(2)}</strong></p>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <p className="total-price">
+        <strong>Total: ₦{totalPrice.toFixed(2)}</strong>
+      </p>
 
-      <button onClick={placeOrder} disabled={loading}>
+      {error && <p className="error-msg">{error}</p>}
+
+      <button
+        onClick={placeOrder}
+        disabled={loading}
+        className="place-order-btn"
+        aria-busy={loading}
+      >
         {loading ? 'Placing order...' : 'Place Order'}
       </button>
     </div>
