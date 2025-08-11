@@ -57,33 +57,64 @@ export default function AddProduct() {
     setLoading(false);
   };
 
-  if (error) return <p style={{color:'red'}}>{error}</p>;
+  if (error)
+    return (
+      <p className="text-red-600 dark:text-red-400 p-4 text-center font-semibold">
+        {error}
+      </p>
+    );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Add Product</h2>
-      <input
-        type="text"
-        placeholder="Product Name"
-        value={name}
-        onChange={e => setName(e.target.value)}
-        required
-      />
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Price"
-        value={price}
-        onChange={e => setPrice(e.target.value)}
-        required
-        min="0"
-        step="0.01"
-      />
-      <button type="submit" disabled={loading}>
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md"
+    >
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+        Add Product
+      </h2>
+
+      <label className="block mb-4">
+        <span className="text-gray-700 dark:text-gray-300 font-medium">Product Name</span>
+        <input
+          type="text"
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+        />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-gray-700 dark:text-gray-300 font-medium">Description</span>
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          rows={4}
+        />
+      </label>
+
+      <label className="block mb-6">
+        <span className="text-gray-700 dark:text-gray-300 font-medium">Price</span>
+        <input
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required
+          min="0"
+          step="0.01"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+        />
+      </label>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-2 rounded-md transition"
+      >
         {loading ? 'Adding...' : 'Add Product'}
       </button>
     </form>

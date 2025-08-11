@@ -15,7 +15,8 @@ export default function VendorPayouts() {
       try {
         const { data, error } = await supabase
           .from('vendor_payouts')
-          .select('*');
+          .select('*')
+          .order('created_at', { ascending: false });
 
         if (error) {
           setError(error.message);
@@ -32,17 +33,21 @@ export default function VendorPayouts() {
     fetchPayouts();
   }, []);
 
-  if (loading) return <p>Loading payouts...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
-  if (payouts.length === 0) return <p>No payouts found.</p>;
+  if (loading) 
+    return <p className="text-center mt-10 text-gray-600">Loading payouts...</p>;
+  if (error) 
+    return <p className="text-center mt-10 text-red-600 font-semibold">{error}</p>;
+  if (payouts.length === 0) 
+    return <p className="text-center mt-10 text-gray-700">No payouts found.</p>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Vendor Payouts</h1>
-      <ul>
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-md shadow-md mt-8">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">Vendor Payouts</h1>
+      <ul className="divide-y divide-gray-200">
         {payouts.map((payout) => (
-          <li key={payout.id}>
-            Amount: ${payout.amount} — Date: {new Date(payout.created_at).toLocaleDateString()}
+          <li key={payout.id} className="py-4 flex justify-between">
+            <span>Amount: <strong>${payout.amount.toFixed(2)}</strong></span>
+            <span className="text-gray-500">{new Date(payout.created_at).toLocaleDateString()}</span>
           </li>
         ))}
       </ul>

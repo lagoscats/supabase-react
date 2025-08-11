@@ -1,94 +1,113 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase/client';
-import './CheckoutPage.css';
 
 export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const items = location.state?.items || [];
+  const items = (location.state?.items || []).map(item => ({
+    ...item,
+    quantity: item.quantity || 1,
+  }));
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-  const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+  const { updatedItems, total } = useMemo(() => {
+    const updatedItems = items.map(item => ({
+      ...item,
+      subtotal: item.price * item.quantity,
+    }));
+    const total = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
+    return { updatedItems, total };
+  }, [items]);
 
-  const placeOrder = async () => {
-    setLoading(true);
-    setError(null);
-
+  const handlePlaceOrder = async () => {
     try {
+      setLoading(true);
+      setError(null);
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      if (!user) throw new Error('You must be logged in to place an order.');
 
-      if (!user) {
-        alert('Please login to place an order.');
-        setLoading(false);
-        return;
-      }
-
-      // Insert order
-      const { error: orderError, data: orderData } = await supabase
-        .from('orders')
-        .insert([{ user_id: user.id, total_price: totalPrice }])
-        .select()
-        .single();
+      const { error: orderError } = await supabase.from('orders').insert([
+        {
+          user_id: user.id,
+          items: updatedItems,
+          total_price: total,
+          status: 'pending',
+        },
+      ]);
 
       if (orderError) throw orderError;
 
-      const orderId = orderData.id;
-
-      // Insert order items
-      const orderItems = items.map(item => ({
-        order_id: orderId,
-        product_id: item.id,
-        quantity: 1,
-        price: item.price,
-      }));
-
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
-
-      alert('Order placed successfully!');
-      navigate('/'); // redirect home or to orders page
+      setSuccess(true);
+      setTimeout(() => navigate('/'), 2000);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'An error occurred while placing your order.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (items.length === 0) {
-    return <p className="empty-cart-msg">No items to checkout.</p>;
-  }
-
   return (
-    <div className="checkout-page">
-      <h2>Checkout</h2>
-      <ul className="checkout-items">
-        {items.map(item => (
-          <li key={item.id} className="checkout-item">
-            <span className="item-name">{item.name}</span>
-            <span className="item-price">₦{item.price.toFixed(2)}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
+      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">Checkout</h1>
 
-      <p className="total-price">
-        <strong>Total: ₦{totalPrice.toFixed(2)}</strong>
-      </p>
+      {updatedItems.length === 0 ? (
+        <p className="text-gray-700 dark:text-gray-300">Your cart is empty.</p>
+      ) : (
+        <>
+          <div className="space-y-6 mb-8">
+            {updatedItems.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center space-x-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-md"
+              >
+                <img
+                  src={item.image_url || 'https://via.placeholder.com/80'}
+                  alt={item.name}
+                  className="w-20 h-20 object-cover rounded-md"
+                />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{item.name}</h3>
+                  <p className="text-gray-700 dark:text-gray-300">Price: ₦{item.price.toLocaleString()}</p>
+                  <p className="text-gray-700 dark:text-gray-300">Quantity: {item.quantity}</p>
+                  <p className="text-blue-600 dark:text-blue-400 font-semibold">
+                    Subtotal: ₦{item.subtotal.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
 
-      {error && <p className="error-msg">{error}</p>}
+          <div className="border-t border-gray-300 dark:border-gray-700 pt-6">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+              Total: ₦{total.toLocaleString()}
+            </h2>
 
-      <button
-        onClick={placeOrder}
-        disabled={loading}
-        className="place-order-btn"
-        aria-busy={loading}
-      >
-        {loading ? 'Placing order...' : 'Place Order'}
-      </button>
+            {error && (
+              <p className="mb-4 text-red-600 dark:text-red-400 font-semibold">{error}</p>
+            )}
+            {success && (
+              <p className="mb-4 text-green-600 dark:text-green-400 font-semibold">
+                Order placed successfully!
+              </p>
+            )}
+
+            <button
+              onClick={handlePlaceOrder}
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-md font-semibold transition"
+            >
+              {loading ? 'Placing Order...' : 'Place Order'}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

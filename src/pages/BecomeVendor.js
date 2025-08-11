@@ -1,8 +1,6 @@
-// src/pages/BecomeVendor.js
 import React, { useState } from 'react';
 import { supabase } from '../supabase/client';
 import { useNavigate } from 'react-router-dom';
-import './BecomeVendor.css';
 
 export default function BecomeVendor() {
   const navigate = useNavigate();
@@ -24,7 +22,7 @@ export default function BecomeVendor() {
         return;
       }
 
-      // ✅ Check if user already has a vendor profile
+      // Check if user already has a vendor profile
       const { data: existingVendor, error: checkError } = await supabase
         .from('vendor_listings')
         .select('*')
@@ -34,30 +32,20 @@ export default function BecomeVendor() {
       if (checkError) throw checkError;
 
       if (existingVendor) {
-        // Redirect if profile already exists
         navigate(`/vendor-dashboard/${existingVendor.id}`);
         return;
       }
 
-      // ✅ Insert new vendor profile
+      // Insert new vendor profile
       const { data, error: insertError } = await supabase
         .from('vendor_listings')
-        .insert([
-          {
-            user_id: user.id,
-            name,
-            location,
-          },
-        ])
+        .insert([{ user_id: user.id, name, location }])
         .select()
         .single();
 
       if (insertError) throw insertError;
 
-      // ✅ Redirect to vendor dashboard after creation
       navigate(`/dashboard/vendor/${data.id}`);
-
-
     } catch (err) {
       console.error(err);
       setError('Error creating vendor profile.');
@@ -67,30 +55,42 @@ export default function BecomeVendor() {
   };
 
   return (
-    <div className="become-vendor-container">
-      <h2>Become a Vendor</h2>
-      <form onSubmit={handleSubmit} className="vendor-form">
-        {error && <p className="error">{error}</p>}
+    <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Become a Vendor</h2>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {error && (
+          <p className="text-red-600 dark:text-red-400 font-semibold">{error}</p>
+        )}
 
-        <label>Vendor Name:</label>
-        <input
-          type="text"
-          placeholder="Enter your shop name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        <label className="block">
+          <span className="text-gray-700 dark:text-gray-300 font-medium">Vendor Name:</span>
+          <input
+            type="text"
+            placeholder="Enter your shop name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          />
+        </label>
 
-        <label>Location:</label>
-        <input
-          type="text"
-          placeholder="Enter your location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          required
-        />
+        <label className="block">
+          <span className="text-gray-700 dark:text-gray-300 font-medium">Location:</span>
+          <input
+            type="text"
+            placeholder="Enter your location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          />
+        </label>
 
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-2 rounded-md transition"
+        >
           {loading ? 'Submitting...' : 'Submit'}
         </button>
       </form>

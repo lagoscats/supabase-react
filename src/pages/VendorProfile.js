@@ -7,12 +7,12 @@ const VendorProfile = () => {
   const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchVendor() {
       setLoading(true);
-      setError('');
+      setError("");
 
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
@@ -42,17 +42,29 @@ const VendorProfile = () => {
     fetchVendor();
   }, [navigate]);
 
-  if (loading) return <p>Loading vendor profile...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (loading) return <p className="text-center mt-10 text-lg text-gray-600">Loading vendor profile...</p>;
+
+  if (error)
+    return (
+      <p className="text-center mt-10 text-red-600 font-semibold">
+        {error}
+      </p>
+    );
 
   if (!vendor) return null;
 
   return (
-    <div className="vendor-profile-container" style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
-      <h1>{vendor.name}</h1>
-      <p><strong>Location:</strong> {vendor.location}</p>
-      <p><strong>Phone:</strong> {vendor.phone || 'N/A'}</p>
-      <p><strong>Description:</strong> {vendor.description || 'No description provided.'}</p>
+    <div className="max-w-xl mx-auto my-12 p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-bold mb-4 text-gray-800">{vendor.name}</h1>
+      <p className="mb-2 text-gray-700">
+        <strong>Location:</strong> {vendor.location}
+      </p>
+      <p className="mb-2 text-gray-700">
+        <strong>Phone:</strong> {vendor.phone || "N/A"}
+      </p>
+      <p className="text-gray-700">
+        <strong>Description:</strong> {vendor.description || "No description provided."}
+      </p>
     </div>
   );
 };

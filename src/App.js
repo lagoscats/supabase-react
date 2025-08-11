@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useSessionContext } from '@supabase/auth-helpers-react';
 
-import Navbar from './components/Navbar'; // Import Navbar here
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -21,9 +22,9 @@ import AddProduct from './pages/AddProduct';
 import ManageProducts from './pages/ManageProducts';
 import AddListing from './pages/AddListing';
 import EditListing from './pages/EditListing';
-import Footer from './components/Footer';
-import { CartProvider } from './context/CartContext';
 import CheckoutPage from './pages/CheckoutPage';
+
+import { CartProvider } from './context/CartContext';
 
 import './App.css';
 
@@ -37,9 +38,16 @@ function App() {
   return (
     <BrowserRouter>
       <CartProvider>
-        <div className="app-container">
+        {/* 
+          Use min-h-screen to ensure the container fills full viewport height,
+          and set light/dark backgrounds for the entire app.
+          Also set text color for light/dark mode.
+        */}
+        <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
           <Navbar />
-          <main className="main-content">
+
+          {/* Make main grow to fill available space between navbar and footer */}
+          <main className="flex-grow pt-16">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
@@ -116,6 +124,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
+
           <Footer />
         </div>
       </CartProvider>

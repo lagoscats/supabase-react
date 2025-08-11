@@ -1,261 +1,126 @@
 // src/pages/VendorDashboard.js
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabase/client';
-import './VendorDashboard.css';
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export default function VendorDashboard() {
-  const [vendor, setVendor] = useState(null);
   const [products, setProducts] = useState([]);
-  const [loadingVendor, setLoadingVendor] = useState(true);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-  });
+  const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState({ sales: 0, orders: 0, products: 0, pending: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchVendor = async () => {
-      try {
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError) throw userError;
-        if (!user) {
-          setLoadingVendor(false);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('vendors')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) throw error;
-
-        setVendor(data);
-      } catch (error) {
-        console.error('Error fetching vendor:', error);
-      } finally {
-        setLoadingVendor(false);
-      }
-    };
-
-    fetchVendor();
+    fetchProducts();
+    fetchOrders();
   }, []);
 
-  useEffect(() => {
-    if (!vendor) return;
-
-    const fetchProducts = async () => {
-      setLoadingProducts(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('vendor_id', vendor.user_id) // Make sure vendor.user_id is UUID
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Products fetch error:', error);
-      } else {
-        setProducts(data);
-      }
-      setLoadingProducts(false);
-    };
-
-    fetchProducts();
-  }, [vendor]);
-
-  const handleFormChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleEditClick = (product) => {
-    setEditingProduct(product);
-    setFormData({
-      name: product.name || '',
-      description: product.description || '',
-      price: product.price ? product.price.toString() : '',
-    });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingProduct(null);
-    setFormData({
-      name: '',
-      description: '',
-      price: '',
-    });
-  };
-
-  const handleSaveProduct = async (e) => {
-    e.preventDefault();
-
-    if (!vendor || !vendor.user_id) {
-      alert('Vendor not found or invalid');
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      if (editingProduct) {
-        // Update existing product
-        const { error } = await supabase
-          .from('products')
-          .update({
-            name: formData.name,
-            description: formData.description,
-            price: parseFloat(formData.price),
-          })
-          .eq('id', editingProduct.id);
-
-        if (error) throw error;
-
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === editingProduct.id
-              ? {
-                  ...p,
-                  name: formData.name,
-                  description: formData.description,
-                  price: parseFloat(formData.price),
-                }
-              : p
-          )
-        );
-        alert('Product updated successfully!');
-      } else {
-        // Insert new product
-        const { data, error } = await supabase
-          .from('products')
-          .insert([
-            {
-              vendor_id: vendor.user_id,
-              name: formData.name,
-              description: formData.description,
-              price: parseFloat(formData.price),
-            },
-          ])
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        setProducts((prev) => [data, ...prev]);
-        setFormData({ name: '', description: '', price: '' }); // Clear form after add
-        setEditingProduct(null);
-        alert('Product added successfully!');
-      }
-    } catch (error) {
-      alert('Error saving product: ' + error.message);
-    } finally {
-      setSaving(false);
+  const fetchProducts = async () => {
+    const { data, error } = await supabase.from("products").select("*");
+    if (!error && data) {
+      setProducts(data);
+      setStats(prev => ({ ...prev, products: data.length }));
     }
   };
 
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
-    const { error } = await supabase.from('products').delete().eq('id', id);
-    if (error) {
-      alert('Error deleting product: ' + error.message);
-    } else {
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      alert('Product deleted successfully!');
+  const fetchOrders = async () => {
+    const { data, error } = await supabase.from("orders").select("*");
+    if (!error && data) {
+      setOrders(data);
+      const totalSales = data.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+      const pendingOrders = data.filter(o => o.status === "pending").length;
+      setStats(prev => ({ ...prev, orders: data.length, sales: totalSales, pending: pendingOrders }));
     }
   };
-
-  if (loadingVendor) return <p className="loading-text">Loading vendor info...</p>;
-  if (!vendor) return <p>No vendor profile found.</p>;
 
   return (
-    <div className="vendor-dashboard-container">
-      <h1>Vendor Dashboard</h1>
-      <p className="vendor-name">Welcome, {vendor.name}!</p>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white shadow-lg hidden md:block">
+        <div className="p-4 text-xl font-bold border-b">Vendor Panel</div>
+        <nav className="p-4 space-y-4">
+          <button onClick={() => navigate("/vendor-dashboard")} className="block w-full text-left hover:text-blue-500">Dashboard</button>
+          <button onClick={() => navigate("/vendor/products")} className="block w-full text-left hover:text-blue-500">Products</button>
+          <button onClick={() => navigate("/vendor/orders")} className="block w-full text-left hover:text-blue-500">Orders</button>
+          <button className="block w-full text-left text-red-500 hover:underline">Logout</button>
+        </nav>
+      </aside>
 
-      <section>
-        <h2>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
-        <form className="product-form" onSubmit={handleSaveProduct}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Product Name"
-            value={formData.name}
-            onChange={handleFormChange}
-            required
-          />
-          <textarea
-            name="description"
-            placeholder="Product Description"
-            value={formData.description}
-            onChange={handleFormChange}
-            rows={3}
-          />
-          <input
-            type="number"
-            name="price"
-            placeholder="Price (₦)"
-            min="0"
-            step="0.01"
-            value={formData.price}
-            onChange={handleFormChange}
-            required
-          />
-          <div>
-            <button type="submit" disabled={saving}>
-              {saving ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}
-            </button>
-            {editingProduct && (
-              <button
-                type="button"
-                className="cancel-btn"
-                onClick={handleCancelEdit}
-                disabled={saving}
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-      </section>
+      {/* Main Content */}
+      <main className="flex-1 p-6">
+        {/* Overview Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <StatCard title="Total Sales" value={`₦${stats.sales.toLocaleString()}`} />
+          <StatCard title="Total Orders" value={stats.orders} />
+          <StatCard title="Total Products" value={stats.products} />
+          <StatCard title="Pending Orders" value={stats.pending} />
+        </div>
 
-      <section>
-        <h2>Your Products</h2>
-        {loadingProducts ? (
-          <p className="loading-text">Loading products...</p>
-        ) : products.length === 0 ? (
-          <p>You have not added any products yet.</p>
-        ) : (
-          <ul className="product-list">
-            {products.map((product) => (
-              <li key={product.id}>
-                <div className="product-info">
-                  <strong>{product.name}</strong>
-                  <small>{product.description}</small>
-                  <small>₦{product.price?.toFixed(2)}</small>
+        {/* Recent Orders */}
+        <div className="bg-white p-4 rounded-xl shadow mb-6">
+          <h2 className="text-lg font-bold mb-4">Recent Orders</h2>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b">
+                <th className="p-2">Order ID</th>
+                <th className="p-2">Product</th>
+                <th className="p-2">Qty</th>
+                <th className="p-2">Total</th>
+                <th className="p-2">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.slice(0, 5).map(o => (
+                <tr key={o.id} className="border-b hover:bg-gray-50">
+                  <td className="p-2">{o.id}</td>
+                  <td className="p-2">{o.product_name}</td>
+                  <td className="p-2">{o.quantity}</td>
+                  <td className="p-2">₦{(o.total_amount || 0).toLocaleString()}</td>
+                  <td className="p-2">
+                    <span className={`px-2 py-1 text-xs rounded-full ${o.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}`}>
+                      {o.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Products */}
+        <div className="bg-white p-4 rounded-xl shadow">
+          <h2 className="text-lg font-bold mb-4">Your Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {products.map(p => (
+              <div key={p.id} className="border rounded-xl p-4 shadow hover:shadow-lg transition">
+                <img src={p.image_url} alt={p.name} className="h-40 w-full object-cover rounded-lg mb-2" />
+                <h3 className="font-bold">{p.name}</h3>
+                <p className="text-gray-600">₦{p.price.toLocaleString()}</p>
+                <div className="flex justify-between mt-3">
+                  <button onClick={() => navigate(`/edit-product/${p.id}`)} className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">Edit</button>
+                  <button className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
                 </div>
-                <div className="product-actions">
-                  <button onClick={() => handleEditClick(product)}>Edit</button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
+              </div>
             ))}
-          </ul>
-        )}
-      </section>
+          </div>
+        </div>
+
+        {/* Floating Add Button */}
+        <button
+          onClick={() => navigate("/add-product")}
+          className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg text-lg"
+        >
+          +
+        </button>
+      </main>
+    </div>
+  );
+}
+
+function StatCard({ title, value }) {
+  return (
+    <div className="bg-white p-4 rounded-xl shadow text-center">
+      <h3 className="text-gray-500 text-sm">{title}</h3>
+      <p className="text-xl font-bold">{value}</p>
     </div>
   );
 }
