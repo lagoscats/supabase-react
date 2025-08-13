@@ -23,6 +23,9 @@ import ManageProducts from './pages/ManageProducts';
 import AddListing from './pages/AddListing';
 import EditListing from './pages/EditListing';
 import CheckoutPage from './pages/CheckoutPage';
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import PaymentPage from "./pages/PaymentPage";
 
 import { CartProvider } from './context/CartContext';
 
@@ -61,6 +64,10 @@ function App() {
               <Route path="/vendor/:vendorId" element={<VendorProfile />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+
 
               {/* Protected Routes */}
               <Route

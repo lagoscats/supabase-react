@@ -1,68 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabase/client';
+import React from 'react';
 
-export default function ReviewList({ productId }) {
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('product_id', productId)
-        .order('created_at', { ascending: false });
-
-      if (!error) setReviews(data);
-      else console.error('Failed to load reviews:', error);
-      setLoading(false);
-    };
-
-    fetchReviews();
-  }, [productId]);
-
-  const renderStars = (count) => {
-    return [...Array(5)].map((_, i) => (
-      <span
-        key={i}
-        className={`inline-block text-xl ${
-          i < count ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
-        }`}
-        aria-hidden="true"
-      >
-        ★
-      </span>
-    ));
-  };
-
-  if (loading)
-    return (
-      <p className="text-center text-gray-700 dark:text-gray-300 my-4">Loading reviews...</p>
-    );
-  if (reviews.length === 0)
-    return (
-      <p className="text-center text-gray-700 dark:text-gray-300 my-4">No reviews yet.</p>
-    );
+export default function ReviewList({ reviews }) {
+  if (!reviews || reviews.length === 0) {
+    return <p className="text-gray-600 italic">No reviews yet</p>;
+  }
 
   return (
-    <div className="review-list mt-8 max-w-xl">
-      <h4 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-        Customer Reviews
-      </h4>
-
-      {reviews.map((review) => (
-        <div
-          key={review.id}
-          className="review-card bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 shadow"
-        >
-          <div className="stars mb-2">{renderStars(review.rating)}</div>
-          <p className="comment text-gray-800 dark:text-gray-200 mb-2 whitespace-pre-line">
-            {review.comment || <i className="text-gray-400">No comment</i>}
-          </p>
-          <p className="timestamp text-sm text-gray-500 dark:text-gray-400">
-            {new Date(review.created_at).toLocaleDateString()}
-          </p>
+    <div className="space-y-4">
+      {reviews.map(({ id, rating, comment, created_at }) => (
+        <div key={id} className="border-b border-gray-200 pb-4 last:border-b-0">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex space-x-1 text-yellow-400">
+              {[...Array(rating)].map((_, i) => (
+                <svg
+                  key={i}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  className="w-5 h-5"
+                  aria-hidden="true"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.962a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.447a1 1 0 00-.364 1.118l1.287 3.963c.3.922-.755 1.688-1.538 1.118L10 13.347l-3.37 2.447c-.783.57-1.838-.196-1.538-1.118l1.287-3.963a1 1 0 00-.364-1.118L3.644 9.39c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.962z" />
+                </svg>
+              ))}
+            </div>
+            <time
+              dateTime={created_at}
+              className="text-gray-400 text-sm"
+              title={new Date(created_at).toLocaleString()}
+            >
+              {new Date(created_at).toLocaleDateString()}
+            </time>
+          </div>
+          <p className="text-gray-800">{comment}</p>
         </div>
       ))}
     </div>

@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'; 
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabase/client';
-import ReviewForm from '../components/ReviewForm';
-import ReviewList from '../components/ReviewList';
 import FallbackImage from '../components/FallbackImage';
+import ReviewsSection from '../components/ReviewsSection';
 
 export default function ProductPage() {
-  const { id } = useParams();
+  const { id: productId } = useParams(); // renamed for clarity
   const [product, setProduct] = useState(null);
   const [user, setUser] = useState(null);
 
@@ -15,7 +14,7 @@ export default function ProductPage() {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('id', id)
+        .eq('id', productId)
         .single();
 
       if (error) console.error('Error fetching product:', error);
@@ -23,13 +22,15 @@ export default function ProductPage() {
     };
 
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUser(user);
     };
 
     fetchProduct();
     fetchUser();
-  }, [id]);
+  }, [productId]);
 
   if (!product)
     return (
@@ -73,9 +74,8 @@ export default function ProductPage() {
             ₦{product.price}
           </p>
 
-          {user && <ReviewForm productId={product.id} user={user} />}
-
-          <ReviewList productId={product.id} />
+          {/* Reviews Section includes ReviewForm and ReviewList */}
+          <ReviewsSection productId={productId} user={user} />
         </div>
       </div>
     </div>

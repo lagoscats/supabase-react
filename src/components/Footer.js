@@ -1,59 +1,126 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from "react"; 
+import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
-import "./Footer.css";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  // Scroll to top helper
+  const handleClick = (path) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <footer className="footer">
-      <div className="footer-container">
-
-        {/* Left section - Logo & About */}
-        <div className="footer-section">
-          <h3>SupaLink</h3>
-          <p>Your local business directory & mini marketplace.</p>
+    <footer className="bg-gray-900 text-white">
+      {/* Container */}
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        {/* Logo & About */}
+        <div>
+          <h3 className="text-3xl font-bold mb-3">SupaLink</h3>
+          <p className="text-gray-400 text-sm">
+            Your local business directory & mini marketplace.
+          </p>
         </div>
 
-        {/* Middle section - Quick Links */}
-        <div className="footer-section">
-          <h4>Quick Links</h4>
-          <ul>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/products">Products</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
-            <li><Link to="/dashboard">Dashboard</Link></li>
+        {/* Quick Links */}
+        <div>
+          <h4 className="text-lg font-semibold mb-3">Quick Links</h4>
+          <ul className="space-y-2">
+            <li>
+              <button 
+                onClick={() => handleClick("/")} 
+                className="hover:text-yellow-400 transition-colors duration-200 text-left"
+              >
+                Home
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleClick("/products")} 
+                className="hover:text-yellow-400 transition-colors duration-200 text-left"
+              >
+                Products
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleClick("/contact")} 
+                className="hover:text-yellow-400 transition-colors duration-200 text-left"
+              >
+                Contact
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleClick("/dashboard")} 
+                className="hover:text-yellow-400 transition-colors duration-200 text-left"
+              >
+                Dashboard
+              </button>
+            </li>
           </ul>
         </div>
 
-        {/* Middle section - Policies */}
-        <div className="footer-section">
-          <h4>Policies</h4>
-          <ul>
-            <li><Link to="/terms">Terms of Service</Link></li>
-            <li><Link to="/privacy">Privacy Policy</Link></li>
+        {/* Policies */}
+        <div>
+          <h4 className="text-lg font-semibold mb-3">Policies</h4>
+          <ul className="space-y-2">
+            <li>
+              <button 
+                onClick={() => handleClick("/terms")} 
+                className="hover:text-yellow-400 transition-colors duration-200 text-left"
+              >
+                Terms of Service
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleClick("/privacy")} 
+                className="hover:text-yellow-400 transition-colors duration-200 text-left"
+              >
+                Privacy Policy
+              </button>
+            </li>
           </ul>
         </div>
 
-        {/* Right section - Social Media */}
-        <div className="footer-section">
-          <h4>Follow Us</h4>
-          <div className="social-icons">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer">
+        {/* Social Media */}
+        <div>
+          <h4 className="text-lg font-semibold mb-3">Follow Us</h4>
+          <div className="flex space-x-4 text-xl">
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-yellow-400 transition-colors duration-200"
+            >
               <FaFacebook />
             </a>
-            <a href="https://twitter.com" target="_blank" rel="noreferrer">
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-yellow-400 transition-colors duration-200"
+            >
               <FaTwitter />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer">
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-yellow-400 transition-colors duration-200"
+            >
               <FaInstagram />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Bottom copyright */}
-      <div className="footer-bottom">
-        <p>© {new Date().getFullYear()} SupaLink. All rights reserved.</p>
+      {/* Bottom Bar */}
+      <div className="bg-gray-800 text-center py-4 text-gray-400 text-sm">
+        © {new Date().getFullYear()} SupaLink. All rights reserved.
       </div>
     </footer>
   );

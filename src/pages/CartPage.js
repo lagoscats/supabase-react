@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function CartPage() {
   const { cart, removeFromCart, clearCart } = useCart();
   const navigate = useNavigate();
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
 
@@ -17,7 +22,6 @@ export default function CartPage() {
     navigate('/checkout', { state: { items: cart } });
   };
 
-  // Animation variants for list items
   const itemVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: { opacity: 1, x: 0 },
